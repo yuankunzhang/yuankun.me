@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://yuankun.me/"/>
-  <updated>2017-08-06T10:19:30.000Z</updated>
+  <updated>2017-08-13T05:20:29.000Z</updated>
   <id>https://yuankun.me/</id>
   
   <author>
@@ -14,6 +14,72 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>认识时序数据库</title>
+    <link href="https://yuankun.me/2017/08/11/introduction-to-tsdb/"/>
+    <id>https://yuankun.me/2017/08/11/introduction-to-tsdb/</id>
+    <published>2017-08-11T08:54:54.000Z</published>
+    <updated>2017-08-13T05:20:29.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>在很多场景下，数据并不是孤立的存在。例如股票价格的走势，一天之内温度的变化等。一组相关数据以时间为坐标串联起来，形成一条连续的变化线，这就是时序数据。时序数据可以直观地反映变化的规律性，也可以方便地用来识别和预测异常情形。</p>
+<p>而时序数据库，就是专门用来存储时序数据的一类特殊数据库。</p>
+<p><img src="https://i.imgur.com/xBEstlX.png" alt="北京市一天之内的温度走势，图片截取自 www.weather.com.cn"></p>
+<p>相比于传统的 RDBMS 或者 NoSQL，时序数据库有下列鲜明的特征。</p>
+<a id="more"></a>
+<p><strong>时序数据没有复杂的结构和关联</strong>。时序数据关注的是被测指标在时间维度上的变化规律，它并不需要复杂的嵌套的数据结构：时间戳连同数据值就构成了一个数据点。另外，时序数据也不关心不同的被测指标之间的关系（这种关系在定义良好的可视化图表上一目了然），数据之间不需要任何诸如外键等关联关系。</p>
+<p><strong>正是因为没有复杂的结构和关联，时序数据库不需要提供范式和事务支持</strong>。时序数据库面向的是与传统数据库截然不同的业务领域，范式和事务在其中是不必要的。不过，时序数据库存在其他的限制和约束。</p>
+<p><strong>时序数据库的实时写入量通常很大</strong>。时序数据需要采集的数据量与数据源的数量以及采样的时间精度成正比。在某些业务场景下，一秒钟需要采集上万甚至更多个数据点。</p>
+<h2 id="时序数据的结构"><a href="#时序数据的结构" class="headerlink" title="时序数据的结构"></a>时序数据的结构</h2><p>时序数据有着简单的结构。</p>
+<p>被测量的指标一般称作 <code>metric</code>。指标的一个孤立数据点表示为以指标名为索引的键值对：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">metric -&gt; (timestamp, value)</div></pre></td></tr></table></figure>
+<p>依时间顺序逐次采集若干数据点，我们就得到了该被测量指标的一系列值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">metric -&gt; (t0, v0), (t1, v1), (t2, v2), ...</div></pre></td></tr></table></figure>
+<p>这就是时序数据的基本结构，一般来说采样的时间间隔是恒定的（允许存在误差）。作为示例，下面是一组温度的时序数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">temperature -&gt; (1502433662000, 29.3), (1502433672002, 29.7), (1502433681999, 29.6), ...</div></pre></td></tr></table></figure>
+<p>仅仅依靠指标名称来索引数据略嫌简陋，有时候希望能对数据作出进一步的区分。为了达到这一目的，我们给指标添加一个或者多个标签（labels）。例如，为了区分不同城市的温度，我们引入一个叫做 <code>city</code> 的标签。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">temperature&#123;city=beijing&#125; -&gt; ...</div><div class="line">temperature&#123;city=nanjing&#125; -&gt; ...</div><div class="line">temperature&#123;city=tianjin&#125; -&gt; ...</div></pre></td></tr></table></figure>
+<p>指标的名称可以看作是一个叫作 <code>name</code> 的特殊标签，这样，数据的索引就一般化为了一组标签的集合。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;name=temperature, city=beijing&#125; -&gt; ...</div><div class="line">&#123;name=temperature, city=nanjing&#125; -&gt; ...</div><div class="line">&#123;name=temperature, city=tianjin&#125; -&gt; ...</div></pre></td></tr></table></figure>
+<h2 id="时序数据库的读写特点"><a href="#时序数据库的读写特点" class="headerlink" title="时序数据库的读写特点"></a>时序数据库的读写特点</h2><p>写入操作的特点：</p>
+<ul>
+<li>由于数据量庞大，存储时需要引入某种压缩方案。Facebook 在<a href="http://www.vldb.org/pvldb/vol8/p1816-teller.pdf" target="_blank" rel="external">其阐述 Gorilla 数据库的论文</a>中介绍了一种非常适合时序数据库的压缩方案。</li>
+<li>同样由于数据量庞大，存储时应当使用适当的留存策略（Retention Policy），定期删除数据。一般采用三级存储方案：最上层的内存用做缓存，存储热点数据；下一层的 SSD 用来存储留存期（一般为数周或数月）之内的数据；此外还有一个数据中心用来保留全部数据。</li>
+<li>写入操作远多于读取操作，可能占到 99% 以上。绝大部分数据不会被用到。</li>
+<li>数据总是追加式地写入（顺序写入）。</li>
+<li>数据写入之后，就不会再被更新（无随机更新）。</li>
+<li>超出留存期的数据被整块删除（无随机删除）。</li>
+</ul>
+<p>读取操作的特点：</p>
+<ul>
+<li>时序数据存在显著的时间敏感性，越是近期的数据越重要。大部分读取操作所请求的数据集中在最近一天或几天。</li>
+<li>对时序数据的分析过程中需要进行大量运算（求和、计算变化率等），时序数据库需要高效地支持这些运算。</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>你可以从以下两篇文章中找到更多关于时序数据库的讨论：</p>
+<ul>
+<li><a href="http://jmoiron.net/blog/thoughts-on-timeseries-databases/" target="_blank" rel="external">Thoughts on Time-series Databases</a></li>
+<li><a href="https://www.xaprb.com/blog/2014/06/08/time-series-database-requirements/" target="_blank" rel="external">Time-Series Database Requirements</a></li>
+</ul>
+<p>另外，市面上已经有了很多时序数据库，下面两个列表提供了相关方面的内容：</p>
+<ul>
+<li><a href="https://db-engines.com/en/ranking/time+series+dbms" target="_blank" rel="external">DB-Engines Ranking of Time Series DBMS</a></li>
+<li><a href="The complete list of all time series databases for your IoT project">The complete list of all time series databases for your IoT project</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在很多场景下，数据并不是孤立的存在。例如股票价格的走势，一天之内温度的变化等。一组相关数据以时间为坐标串联起来，形成一条连续的变化线，这就是时序数据。时序数据可以直观地反映变化的规律性，也可以方便地用来识别和预测异常情形。&lt;/p&gt;
+&lt;p&gt;而时序数据库，就是专门用来存储时序数据的一类特殊数据库。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://i.imgur.com/xBEstlX.png&quot; alt=&quot;北京市一天之内的温度走势，图片截取自 www.weather.com.cn&quot;&gt;&lt;/p&gt;
+&lt;p&gt;相比于传统的 RDBMS 或者 NoSQL，时序数据库有下列鲜明的特征。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="tsdb" scheme="https://yuankun.me/tags/tsdb/"/>
+    
+  </entry>
   
   <entry>
     <title>使用 Let&#39;s Encrypt 为网站启用 HTTPS 支持</title>

@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://yuankun.me/2017/08/11/introduction-to-tsdb/</loc>
+    
+    <lastmod>2017-08-13T05:20:29.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://yuankun.me/2017/08/06/enable-https-with-lets-encrypt/</loc>
     
     <lastmod>2017-08-06T10:19:30.000Z</lastmod>
