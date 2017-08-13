@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://yuankun.me/"/>
-  <updated>2017-08-13T05:20:29.000Z</updated>
+  <updated>2017-08-13T08:26:16.000Z</updated>
   <id>https://yuankun.me/</id>
   
   <author>
@@ -20,16 +20,17 @@
     <link href="https://yuankun.me/2017/08/11/introduction-to-tsdb/"/>
     <id>https://yuankun.me/2017/08/11/introduction-to-tsdb/</id>
     <published>2017-08-11T08:54:54.000Z</published>
-    <updated>2017-08-13T05:20:29.000Z</updated>
+    <updated>2017-08-13T08:26:16.000Z</updated>
     
     <content type="html"><![CDATA[<p>在很多场景下，数据并不是孤立的存在。例如股票价格的走势，一天之内温度的变化等。一组相关数据以时间为坐标串联起来，形成一条连续的变化线，这就是时序数据。时序数据可以直观地反映变化的规律性，也可以方便地用来识别和预测异常情形。</p>
 <p>而时序数据库，就是专门用来存储时序数据的一类特殊数据库。</p>
-<p><img src="https://i.imgur.com/xBEstlX.png" alt="北京市一天之内的温度走势，图片截取自 www.weather.com.cn"></p>
 <p>相比于传统的 RDBMS 或者 NoSQL，时序数据库有下列鲜明的特征。</p>
 <a id="more"></a>
 <p><strong>时序数据没有复杂的结构和关联</strong>。时序数据关注的是被测指标在时间维度上的变化规律，它并不需要复杂的嵌套的数据结构：时间戳连同数据值就构成了一个数据点。另外，时序数据也不关心不同的被测指标之间的关系（这种关系在定义良好的可视化图表上一目了然），数据之间不需要任何诸如外键等关联关系。</p>
 <p><strong>正是因为没有复杂的结构和关联，时序数据库不需要提供范式和事务支持</strong>。时序数据库面向的是与传统数据库截然不同的业务领域，范式和事务在其中是不必要的。不过，时序数据库存在其他的限制和约束。</p>
 <p><strong>时序数据库的实时写入量通常很大</strong>。时序数据需要采集的数据量与数据源的数量以及采样的时间精度成正比。在某些业务场景下，一秒钟需要采集上万甚至更多个数据点。</p>
+<p><img src="https://i.imgur.com/xBEstlX.png" alt="北京市一天之内的温度走势，图片截取自 www.weather.com.cn"></p>
+<p>上图是一组时序数据的示例：北京市一天之内的温度走势，图片截取自 www.weather.com.cn。</p>
 <h2 id="时序数据的结构"><a href="#时序数据的结构" class="headerlink" title="时序数据的结构"></a>时序数据的结构</h2><p>时序数据有着简单的结构。</p>
 <p>被测量的指标一般称作 <code>metric</code>。指标的一个孤立数据点表示为以指标名为索引的键值对：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">metric -&gt; (timestamp, value)</div></pre></td></tr></table></figure>
@@ -71,7 +72,6 @@
     
       &lt;p&gt;在很多场景下，数据并不是孤立的存在。例如股票价格的走势，一天之内温度的变化等。一组相关数据以时间为坐标串联起来，形成一条连续的变化线，这就是时序数据。时序数据可以直观地反映变化的规律性，也可以方便地用来识别和预测异常情形。&lt;/p&gt;
 &lt;p&gt;而时序数据库，就是专门用来存储时序数据的一类特殊数据库。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://i.imgur.com/xBEstlX.png&quot; alt=&quot;北京市一天之内的温度走势，图片截取自 www.weather.com.cn&quot;&gt;&lt;/p&gt;
 &lt;p&gt;相比于传统的 RDBMS 或者 NoSQL，时序数据库有下列鲜明的特征。&lt;/p&gt;
     
     </summary>
@@ -86,12 +86,12 @@
     <link href="https://yuankun.me/2017/08/06/enable-https-with-lets-encrypt/"/>
     <id>https://yuankun.me/2017/08/06/enable-https-with-lets-encrypt/</id>
     <published>2017-08-06T08:58:13.000Z</published>
-    <updated>2017-08-06T10:19:30.000Z</updated>
+    <updated>2017-08-13T08:31:43.000Z</updated>
     
     <content type="html"><![CDATA[<p>HTTP 协议传输的数据都是不加密的。想象一下，你访问某个网站，当数据经过路由器、宽带网关，以及某墙的时候都是完全可见的，是不是有种裸奔的感觉？为网站启用 HTTPS 支持可以说是大势所趋，在某国日益倒车的互联网环境下更是如此。</p>
 <p>第零步是选择一个靠谱的 CA（Certificate Authority，数字证书认证中心）。你以为所有的认证中心都是中立可信的吗？并不是的，比如此前频频爆出丑闻的 WoSign 和 StarCom，这两家认证中心<a href="https://security.googleblog.com/2016/10/distrusting-wosign-and-startcom.html" target="_blank" rel="external">已经被 Google Chrome 等多款浏览器默认设置为不信任</a>。当然你更不能自己做裁判，像 12306.cn 一样给自己颁发证书。这里推荐 <a href="https://letsencrypt.org/" target="_blank" rel="external">Let’s Encrypt</a>，这家成立于 2016 年、由互联网安全研究小组（ISRG）主导的机构致力于向用户提供<strong>免费的、自动化管理</strong>的证书方案。</p>
-<p>Let’s Encrypt 允许使用实现了 <a href="https://ietf-wg-acme.github.io/acme/" target="_blank" rel="external">ACME 协议</a>的客户端完成诸如证书获取、认证、签名、安装以及续签等步骤。官方推荐使用 <a href="https://certbot.eff.org/" target="_blank" rel="external">Certbot</a>。下面，我们以 Ubuntu 16.04 &amp; Nginx 为例，说明如何使用 Certbot 快速地为网站启用 HTTPS 支持。</p>
 <a id="more"></a>
+<p>Let’s Encrypt 允许使用实现了 <a href="https://ietf-wg-acme.github.io/acme/" target="_blank" rel="external">ACME 协议</a>的客户端完成诸如证书获取、认证、签名、安装以及续签等步骤。官方推荐使用 <a href="https://certbot.eff.org/" target="_blank" rel="external">Certbot</a>。下面，我们以 Ubuntu 16.04 &amp; Nginx 为例，说明如何使用 Certbot 快速地为网站启用 HTTPS 支持。</p>
 <h2 id="第一步：安装-Certbot"><a href="#第一步：安装-Certbot" class="headerlink" title="第一步：安装 Certbot"></a>第一步：安装 Certbot</h2><p>在系统中添加 Certbot 的 PPA，然后使用 <code>apt</code> 安装 Certbot。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> sudo apt-get update</div><div class="line"><span class="meta">$</span> sudo apt-get install software-properties-common</div><div class="line"><span class="meta">$</span> sudo add-apt-repository ppa:certbot/certbot</div><div class="line"><span class="meta">$</span> sudo apt-get update</div><div class="line"><span class="meta">$</span> sudo apt-get install python-certbot-nginx</div></pre></td></tr></table></figure>
 <h2 id="第二步：安装证书"><a href="#第二步：安装证书" class="headerlink" title="第二步：安装证书"></a>第二步：安装证书</h2><p>运行下面的命令获取证书，这个命令同时会为你更改 Nginx 配置文件（并且重载 Nginx）：</p>
@@ -109,7 +109,6 @@
     
       &lt;p&gt;HTTP 协议传输的数据都是不加密的。想象一下，你访问某个网站，当数据经过路由器、宽带网关，以及某墙的时候都是完全可见的，是不是有种裸奔的感觉？为网站启用 HTTPS 支持可以说是大势所趋，在某国日益倒车的互联网环境下更是如此。&lt;/p&gt;
 &lt;p&gt;第零步是选择一个靠谱的 CA（Certificate Authority，数字证书认证中心）。你以为所有的认证中心都是中立可信的吗？并不是的，比如此前频频爆出丑闻的 WoSign 和 StarCom，这两家认证中心&lt;a href=&quot;https://security.googleblog.com/2016/10/distrusting-wosign-and-startcom.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;已经被 Google Chrome 等多款浏览器默认设置为不信任&lt;/a&gt;。当然你更不能自己做裁判，像 12306.cn 一样给自己颁发证书。这里推荐 &lt;a href=&quot;https://letsencrypt.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Let’s Encrypt&lt;/a&gt;，这家成立于 2016 年、由互联网安全研究小组（ISRG）主导的机构致力于向用户提供&lt;strong&gt;免费的、自动化管理&lt;/strong&gt;的证书方案。&lt;/p&gt;
-&lt;p&gt;Let’s Encrypt 允许使用实现了 &lt;a href=&quot;https://ietf-wg-acme.github.io/acme/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;ACME 协议&lt;/a&gt;的客户端完成诸如证书获取、认证、签名、安装以及续签等步骤。官方推荐使用 &lt;a href=&quot;https://certbot.eff.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Certbot&lt;/a&gt;。下面，我们以 Ubuntu 16.04 &amp;amp; Nginx 为例，说明如何使用 Certbot 快速地为网站启用 HTTPS 支持。&lt;/p&gt;
     
     </summary>
     

@@ -1,11 +1,12 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 认识时序数据库 · Yuankun's Blog</title><meta name="description" content="认识时序数据库 - Yuankun Zhang"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"><link rel="search" type="application/opensearchdescription+xml" href="https://yuankun.me/atom.xml" title="Yuankun's Blog"><script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="https://github.com/yuankunzhang" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">认识时序数据库</h1><div class="post-info">Aug 11, 2017</div><div class="post-content"><p>在很多场景下，数据并不是孤立的存在。例如股票价格的走势，一天之内温度的变化等。一组相关数据以时间为坐标串联起来，形成一条连续的变化线，这就是时序数据。时序数据可以直观地反映变化的规律性，也可以方便地用来识别和预测异常情形。</p>
 <p>而时序数据库，就是专门用来存储时序数据的一类特殊数据库。</p>
-<p><img src="https://i.imgur.com/xBEstlX.png" alt="北京市一天之内的温度走势，图片截取自 www.weather.com.cn"></p>
 <p>相比于传统的 RDBMS 或者 NoSQL，时序数据库有下列鲜明的特征。</p>
 <a id="more"></a>
 <p><strong>时序数据没有复杂的结构和关联</strong>。时序数据关注的是被测指标在时间维度上的变化规律，它并不需要复杂的嵌套的数据结构：时间戳连同数据值就构成了一个数据点。另外，时序数据也不关心不同的被测指标之间的关系（这种关系在定义良好的可视化图表上一目了然），数据之间不需要任何诸如外键等关联关系。</p>
 <p><strong>正是因为没有复杂的结构和关联，时序数据库不需要提供范式和事务支持</strong>。时序数据库面向的是与传统数据库截然不同的业务领域，范式和事务在其中是不必要的。不过，时序数据库存在其他的限制和约束。</p>
 <p><strong>时序数据库的实时写入量通常很大</strong>。时序数据需要采集的数据量与数据源的数量以及采样的时间精度成正比。在某些业务场景下，一秒钟需要采集上万甚至更多个数据点。</p>
+<p><img src="https://i.imgur.com/xBEstlX.png" alt="北京市一天之内的温度走势，图片截取自 www.weather.com.cn"></p>
+<p>上图是一组时序数据的示例：北京市一天之内的温度走势，图片截取自 www.weather.com.cn。</p>
 <h2 id="时序数据的结构"><a href="#时序数据的结构" class="headerlink" title="时序数据的结构"></a>时序数据的结构</h2><p>时序数据有着简单的结构。</p>
 <p>被测量的指标一般称作 <code>metric</code>。指标的一个孤立数据点表示为以指标名为索引的键值对：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">metric -&gt; (timestamp, value)</div></pre></td></tr></table></figure>
