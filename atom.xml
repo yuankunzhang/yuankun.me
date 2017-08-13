@@ -646,4 +646,61 @@
     
   </entry>
   
+  <entry>
+    <title>约瑟夫环问题的数学解</title>
+    <link href="https://yuankun.me/2015/12/31/mathematical-solution-to-joseph-circle/"/>
+    <id>https://yuankun.me/2015/12/31/mathematical-solution-to-joseph-circle/</id>
+    <published>2015-12-30T17:21:54.000Z</published>
+    <updated>2017-08-13T10:16:25.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>下午和朋友聊天的时候，有朋友提到了约瑟夫环问题。你和另外 n-1 个人围成一个圈，按 1，2，…，n 依次编号。第一个人从 1 开始报数，数到 k 的人会被杀掉，然后下一个人重新从 1 开始报数。如此往复，直到最后只剩下一个人。问题是，你应该如何选择自己的初始位置，才能保证最后不被杀掉呢？</p>
+<p>速度越快的算法当然越好，毕竟这是一个生死攸关的问题。下面你将会看到，我们如何通过一些基本的数学推导最终得到这个问题的递推解。</p>
+<a id="more"></a>
+<h2 id="初步思考"><a href="#初步思考" class="headerlink" title="初步思考"></a>初步思考</h2><p>考虑这样一种相对简单的情况：总共有 5 个人，数到 3 的人被杀掉。那么，死亡过程如下图所示：</p>
+<p><img src="https://i.imgur.com/AKthV6d.png" alt="总共5人，数到3被杀"></p>
+<p>经过一番模拟之后，我们已经对约瑟夫环问题有了一个大概的直观理解。下面，尝试使用数学语言来描述这个问题。</p>
+<p>哦对了，假如圆圈里只有你自己，那么你肯定就是最后的幸存者，这是一个极其有用的特殊情况。</p>
+<h2 id="建立模型"><a href="#建立模型" class="headerlink" title="建立模型"></a>建立模型</h2><p>这些是我们的<strong>已知条件</strong>：</p>
+<ul>
+<li>总共有 n 个人；</li>
+<li>数到 k 的人将被杀死。</li>
+</ul>
+<p>这个是我们的<strong>未知数</strong>：</p>
+<ul>
+<li>位置 p，处在位置 p 上的人将会幸存下来。</li>
+</ul>
+<h2 id="推导求解"><a href="#推导求解" class="headerlink" title="推导求解"></a>推导求解</h2><p>现在考虑一种泛化情形：总共有 n 个人，数到 k 的人被杀掉，其中 n &gt;= k。幸存者的位置为 $p_n$ 。</p>
+<p>显而易见，初始位置为 k 的人将会第一个被杀掉。此时，经过重新排序之后，问题变成了 n-1 个人的情形。幸存者的位置为 $p_{n-1}$ 。如果能够找到从 $p_{n-1}$ 到 $p_n$ 的递推关系，那么问题就解决了。</p>
+<p><img src="https://i.imgur.com/0Q4geOW.png" alt="杀死第一个人之后，变成 n-1 个人的情况"></p>
+<p>重新排序之后，每个人的位置发生了下面这些变化：</p>
+<ul>
+<li>$1 \rightarrow n-k+1$</li>
+<li>$2 \rightarrow n-k+2$</li>
+<li>$…$</li>
+<li>$k-1 \rightarrow n-1$</li>
+<li>$k$ 被杀死</li>
+<li>$k+1 \rightarrow 1$</li>
+<li>$…$</li>
+<li>$p_n \rightarrow p_{n-1}$</li>
+<li>$…$</li>
+<li>$n-1 \rightarrow n-k+1$</li>
+<li>$n \rightarrow n-k$</li>
+</ul>
+<p>很容易我们能得到这样一个关系式：$p_n = (p_{n-1} + k) \mod n$ 。再加上刚才讨论的特例，只有一个人的情况时，$p_1 = 1$ 。递推式就已经很明显了。</p>
+<p>当然上文只讨论了 n&gt;=k 的情形，实际上对于 n&lt;k 的情形，刚才所得到的递推式依然适用，我们就不展开讨论了。</p>
+<h2 id="编码实现"><a href="#编码实现" class="headerlink" title="编码实现"></a>编码实现</h2><p>既然递推式这么简洁明确，那么编码实现就不用写了吧？</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;下午和朋友聊天的时候，有朋友提到了约瑟夫环问题。你和另外 n-1 个人围成一个圈，按 1，2，…，n 依次编号。第一个人从 1 开始报数，数到 k 的人会被杀掉，然后下一个人重新从 1 开始报数。如此往复，直到最后只剩下一个人。问题是，你应该如何选择自己的初始位置，才能保证最后不被杀掉呢？&lt;/p&gt;
+&lt;p&gt;速度越快的算法当然越好，毕竟这是一个生死攸关的问题。下面你将会看到，我们如何通过一些基本的数学推导最终得到这个问题的递推解。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="math" scheme="https://yuankun.me/tags/math/"/>
+    
+  </entry>
+  
 </feed>
