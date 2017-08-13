@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://yuankun.me/2017/05/03/plan-storage-space-for-prometheus/</loc>
+    
+    <lastmod>2017-08-13T09:14:57.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://yuankun.me/2017/07/30/add-http-basic-auth-to-prometheus/</loc>
     
     <lastmod>2017-08-13T08:42:32.000Z</lastmod>

@@ -153,4 +153,202 @@
     
   </entry>
   
+  <entry>
+    <title>规划 Prometheus 的存储用量</title>
+    <link href="https://yuankun.me/2017/05/03/plan-storage-space-for-prometheus/"/>
+    <id>https://yuankun.me/2017/05/03/plan-storage-space-for-prometheus/</id>
+    <published>2017-05-03T14:32:30.000Z</published>
+    <updated>2017-08-13T09:14:57.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="一-引言"><a href="#一-引言" class="headerlink" title="一. 引言"></a>一. 引言</h2><p><a href="https://prometheus.io/" target="_blank" rel="external">Prometheus</a> 是一款开源的监控与报警系统，支持对海量监控数据的抓取与查询。在部署 Prometheus 服务之前，对服务的存储用量进行规划是十分重要的。否则，运维人员无法对业务数据的规模和所需存储资源的量级获得直观认识。分配的存储资源过多，会导致资源闲置与成本浪费；分配的存储容量不足，则无法应对业务的增长，严重影响监控服务的稳定性。</p>
+<p>部署 Prometheus 服务的第一个步骤是，整理与获得需要监控的节点集合。通过这一集合，我们可以计算出业务数据的规模。进而，我们可以计算出，需要多少存储资源来支撑监控服务的运行。</p>
+<p>本文对影响 Prometheus 服务的运行时存储用量的各个因素进行了剖析与讨论，并给出若干经验公式。这些公式可以用于预估监控服务的内存和硬盘用量。</p>
+<a id="more"></a>
+<h2 id="二-计算样本总量"><a href="#二-计算样本总量" class="headerlink" title="二. 计算样本总量"></a>二. 计算样本总量</h2><p>首先明确两个名词，监控节点与测量点。</p>
+<ul>
+<li><strong>监控节点</strong>。一个 <a href="https://prometheus.io/docs/instrumenting/exporters/" target="_blank" rel="external">exporter</a> 进程被认为是一个监控节点。一台主机上可能运行多个不同类型的 exporter，因此，这台主机上存在多个监控节点。</li>
+<li><strong>测量点</strong>。一个测量点代表了某监控节点上的一个观测对象。从某测量点采集到的一组样本数据构成一条时间序列（time series）。</li>
+</ul>
+<p>为了预估存储用量，首先需要计算样本数据的总量。我们约定：</p>
+<ul>
+<li>需要监控的节点集合为 $nodes={i|i&gt;0}$</li>
+<li>节点 $i$ 上的测量点的数目为 $metrics(i)$ </li>
+<li>对节点 $i$ 的抓取时间间隔为 $interval(i)$，一般为所有节点设置相同的抓取间隔</li>
+</ul>
+<p>每个节点上的测量点的数目由所使用的具体的 exporter 定义。特别的：</p>
+<ul>
+<li><a href="https://github.com/prometheus/node_exporter" target="_blank" rel="external">Node Exporter</a> 大约有 250 个测量点</li>
+<li>Prometheus 服务本身大约有 770 个测量点</li>
+</ul>
+<p>抓取间隔越大，数据越稀疏；抓取间隔越小，监控数据的时间分辨率越高，但所需的存储资源会增多。<strong>建议将该值设置在 5s ~ 15s 之间</strong>。</p>
+<p>基于上述约定可得，在特定的时间范围 $duration$ 内，Prometheus 从节点集合中所抓取的样本数据的总量依下式计算：</p>
+<p>$$sample\_count(duration)=\sum_{i \in nodes}{(metrics(i) \times \frac{duration}{interval(i)})}$$</p>
+<p>Prometheus 支持三种不同的数据编码方案。第一种方案是 delta 编码，已被弃用；第二种方案是 double-delta 编码，这也是默认使用的编码方案；第三种方案是 varbit 编码，基于 Facebook 的<a href="http://www.vldb.org/pvldb/vol8/p1816-teller.pdf" target="_blank" rel="external">一篇关于时序数据库的论文</a>。varbit 编码方案虽能提高数据压缩率，却显著增大了编解码的运算时间。除非有特殊场景，否则我们使用 double-delta 编码方案。</p>
+<p>由 Prometheus 的<a href="https://prometheus.io/docs/operating/storage/#chunk-encoding" target="_blank" rel="external">官方文档</a>，使用 double-delta 方案对数据进行编码后，每条样本的字节大小为：</p>
+<p>$$sample\_size=3.3B$$</p>
+<p>经过若干次采样测量，观测到的平均样本大小介于 3.0~3.8B 之间。可以认为 3.3B 的单条样本大小是可信的。</p>
+<h2 id="三-规划内存用量"><a href="#三-规划内存用量" class="headerlink" title="三. 规划内存用量"></a>三. 规划内存用量</h2><p>Prometheus 对内存的使用由以下四个部分组成：</p>
+<ol>
+<li>留存于内存的活跃样本</li>
+<li>排队等待持久化的过期样本</li>
+<li>索引数据</li>
+<li>其他运行时内存消耗</li>
+</ol>
+<p>第 3.1 节讨论样本数据的内存用量（前两部分），第 3.2 节讨论索引数据的内存用量。对于其他的运行时内存消耗，本文不予讨论。</p>
+<h3 id="3-1-为样本数据计算内存用量"><a href="#3-1-为样本数据计算内存用量" class="headerlink" title="3.1 为样本数据计算内存用量"></a>3.1 为样本数据计算内存用量</h3><p><strong>3.1.1 留存于内存的活跃样本</strong></p>
+<p>对于活跃样本，假设我们要求的留存时间为 $mem\_retention$，则所需的内存空间为：</p>
+<p>$$sample\_mem\_1=sample\_size \times sample\_count(mem\_retention)$$</p>
+<p>在内存中的留存数据越多，查询过往数据的性能越高。但是，新数据的价值远远高于过往数据。在实际应用中，需要根据所监控的业务的性质，设定合理的内存留存时间。Facebook 在<a href="http://www.vldb.org/pvldb/vol8/p1816-teller.pdf" target="_blank" rel="external">其论文</a>中给出的经验值是 26h。<strong>建议将该值设置在 6h ~ 48h 之间</strong>。</p>
+<p><strong>3.1.2 排队等待持久化的过期样本</strong></p>
+<p>对于排队样本，我们约定：</p>
+<ul>
+<li>为了完成对当前所有排队样本的持久化，Prometheus 需要花费的时间周期为 $persist\_cycle$</li>
+<li>为了不至于使 Prometheus 进入紧急模式（Rush mode），排队样本所占的空间不应超过预估空间的 $80\%$</li>
+</ul>
+<p>一般情况下，持久化的时间周期为 6 个小时：</p>
+<p>$$persist\_cycle=6h$$</p>
+<p>因此，排队样本所需的内存空间为：</p>
+<p>$$sample\_mem\_2=\frac{sample\_size \times sample\_count(persist\_cycle)}{0.8}$$</p>
+<p><strong>3.1.3 汇总</strong></p>
+<p>基于前两个公式，再加上索引数据的内存用量（参见第 3.2 节），总内存用量可以依下式计算：</p>
+<p>$$mem=sample\_mem\_1+sample\_mem\_2+index\_mem$$</p>
+<p>一条<a href="https://prometheus.io/docs/operating/storage/#memory-usage" target="_blank" rel="external">经验法则</a>为，<strong>总内存用量不应超过物理内存大小的三分之二</strong>。</p>
+<p>下表计算了若干典型的内存用量（假设所有节点均为 Node Exporter 节点）：</p>
+<table>
+<thead>
+<tr>
+<th><strong>节点数目</strong></th>
+<th><strong>内存留存</strong></th>
+<th><strong>抓取间隔</strong></th>
+<th><strong>活跃样本量</strong></th>
+<th><strong>排队样本量</strong></th>
+<th><strong>内存用量</strong></th>
+<th><strong>物理内存</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>6h</td>
+<td>1s</td>
+<td>1.789G</td>
+<td>2.237G</td>
+<td>4.026G</td>
+<td>6G</td>
+</tr>
+<tr>
+<td>100</td>
+<td>6h</td>
+<td>5s</td>
+<td>0.358G</td>
+<td>0.447G</td>
+<td>0.805G</td>
+<td>1.5G</td>
+</tr>
+<tr>
+<td>1000</td>
+<td>6h</td>
+<td>5s</td>
+<td>3.58G</td>
+<td>0.447G</td>
+<td>4.027G</td>
+<td>6G</td>
+</tr>
+<tr>
+<td>100</td>
+<td>24h</td>
+<td>1s</td>
+<td>7.156G</td>
+<td>2.237G</td>
+<td>9.393G</td>
+<td>14G</td>
+</tr>
+<tr>
+<td>100</td>
+<td>24h</td>
+<td>5s</td>
+<td>1.432G</td>
+<td>0.447G</td>
+<td>1.879G</td>
+<td>3G</td>
+</tr>
+<tr>
+<td>1000</td>
+<td>24h</td>
+<td>5s</td>
+<td>14.32G</td>
+<td>0.447G</td>
+<td>14.75G</td>
+<td>22G</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-2-为索引数据计算内存用量"><a href="#3-2-为索引数据计算内存用量" class="headerlink" title="3.2 为索引数据计算内存用量"></a>3.2 为索引数据计算内存用量</h3><p>对索引数据所需内存的估计，可以使用下面的经验公式：</p>
+<p>$$index\_mem=\frac{series\_count}{1000}MB$$</p>
+<p>其中，</p>
+<p>$$series\_count=\sum_{i \in nodes}{metrics(i)}$$</p>
+<p>也就是，如果有 1000 个时间序列，大约需要 1M 内存。为了提高对旧数据查询性能，可以适当增大索引内存。</p>
+<h2 id="四-规划硬盘用量"><a href="#四-规划硬盘用量" class="headerlink" title="四. 规划硬盘用量"></a>四. 规划硬盘用量</h2><h3 id="4-1-为样本数据计算硬盘用量"><a href="#4-1-为样本数据计算硬盘用量" class="headerlink" title="4.1 为样本数据计算硬盘用量"></a>4.1 为样本数据计算硬盘用量</h3><p>Prometheus 将样本数据持久化为若干文件。当文件中的过期数据超过一定比率时，Prometheus 会对文件执行收缩操作。这个比率被称为文件的收缩比，默认值为 $10\%$。留存时间设置的越大，文件的收缩比应该相应地上调。</p>
+<p>假设我们要求样本留存时间为 $disk\_retension$，文件的收缩比为 $shrink\_ratio$，则样本的硬盘用量为：</p>
+<p>$$sample\_disk=\frac{sample\_size \times sample\_count(disk\_retention)}{1+shrink\_ratio}$$</p>
+<p>加上存储检查点所需的硬盘空间（参加第 4.2 节），总硬盘用量为：</p>
+<p>$$disk=sample\_disk+checkpoint\_disk$$</p>
+<p>下表计算了若干典型的硬盘用量（假设所有节点均为 Node Exporter 节点），注意，该表未包含存储 checkpoint 所需要的硬盘空间：</p>
+<table>
+<thead>
+<tr>
+<th><strong>节点数目</strong></th>
+<th><strong>留存时间</strong></th>
+<th><strong>抓取间隔</strong></th>
+<th><strong>硬盘用量</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>14d</td>
+<td>1s</td>
+<td>91G</td>
+</tr>
+<tr>
+<td>100</td>
+<td>14d</td>
+<td>5s</td>
+<td>18G</td>
+</tr>
+<tr>
+<td>1000</td>
+<td>14d</td>
+<td>1s</td>
+<td>910G</td>
+</tr>
+<tr>
+<td>1000</td>
+<td>14d</td>
+<td>5s</td>
+<td>180G</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-2-为检查点（Checkpoint）计算硬盘用量"><a href="#4-2-为检查点（Checkpoint）计算硬盘用量" class="headerlink" title="4.2 为检查点（Checkpoint）计算硬盘用量"></a>4.2 为检查点（Checkpoint）计算硬盘用量</h3><p>检查点操作用于将内存中的活跃样本暂存到某硬盘文件中，以减少由于程序崩溃或机器掉电等引起的数据丢失。其硬盘用量与活跃样本的内存用量持平即可：</p>
+<p>$$checkpoint\_disk=sample\_mem\_1$$</p>
+<h2 id="五-总结"><a href="#五-总结" class="headerlink" title="五. 总结"></a>五. 总结</h2><p>本文中，我们首先讨论了如何计算所观测的样本总量。特别的，Node Exporter 大约有 250 个测量点，Prometheus 服务本身大约有 770 个测量点。</p>
+<p>进行内存用量规划时，我们主要关注留存于内存中的活跃样本与位于持久化队列中的过期样本。索引数据所需的内存较少，一个经验公式为，每一千个时间序列大约需要 1M 内存。</p>
+<p>Prometheus 对硬盘的使用主要集中在对样本数据的持久化上。当文件过大时，Prometheus 会对文件执行收缩操作。收缩操作的触发由文件的收缩比控制，该选项的默认值为 $10\%$。</p>
+<p>请注意，数据对内存和硬盘的使用情况由众多因素共同影响，例如，数据本身的性质，内存性能，硬盘性能，垃圾回收机制，内存碎片等。对存储用量作出准确的预估是困难的。本文给出的公式在评估数据量级时有参考意义，对于实际的调优工作，还需要对线上环境进行深入而详尽的观察和测量之后方可完成。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;一-引言&quot;&gt;&lt;a href=&quot;#一-引言&quot; class=&quot;headerlink&quot; title=&quot;一. 引言&quot;&gt;&lt;/a&gt;一. 引言&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://prometheus.io/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Prometheus&lt;/a&gt; 是一款开源的监控与报警系统，支持对海量监控数据的抓取与查询。在部署 Prometheus 服务之前，对服务的存储用量进行规划是十分重要的。否则，运维人员无法对业务数据的规模和所需存储资源的量级获得直观认识。分配的存储资源过多，会导致资源闲置与成本浪费；分配的存储容量不足，则无法应对业务的增长，严重影响监控服务的稳定性。&lt;/p&gt;
+&lt;p&gt;部署 Prometheus 服务的第一个步骤是，整理与获得需要监控的节点集合。通过这一集合，我们可以计算出业务数据的规模。进而，我们可以计算出，需要多少存储资源来支撑监控服务的运行。&lt;/p&gt;
+&lt;p&gt;本文对影响 Prometheus 服务的运行时存储用量的各个因素进行了剖析与讨论，并给出若干经验公式。这些公式可以用于预估监控服务的内存和硬盘用量。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="prometheus" scheme="https://yuankun.me/tags/prometheus/"/>
+    
+  </entry>
+  
 </feed>
