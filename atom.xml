@@ -578,4 +578,72 @@
     
   </entry>
   
+  <entry>
+    <title>甩掉鼠标：Mac 键盘大师进化实录</title>
+    <link href="https://yuankun.me/2016/02/15/get-rid-of-your-mouse/"/>
+    <id>https://yuankun.me/2016/02/15/get-rid-of-your-mouse/</id>
+    <published>2016-02-15T08:04:07.000Z</published>
+    <updated>2017-08-13T10:02:03.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>对我这种懒到极致的人来说，鼠标有时候是一个拖慢效率的东西。想想看，我要打开一个应用、调整一个窗口的位置、移动一个文件、浏览一个网页，这些操作似乎都离不开鼠标。如果双手能够始终停留在键盘上，那该有多好。其实，仅用键盘就能完成的任务，比你想象中的要多得多。</p>
+<p>经过一段时间的苦练，我终于可以把键盘耍得风生水起了。我把我们的美术总监拉到身边演示给他看，试图亮瞎他的眼睛。看过之后，他的表情是茫然的，眼神是鄙视的。虽然他什么也没说，但我知道他的内心独白是这样的：我不说话，我就静静地看着你装逼。</p>
+<p>看来，美工狗和程序狗之间相互鄙视的现状，势必要持续存在下去了。</p>
+<a id="more"></a>
+<h2 id="应用启动器"><a href="#应用启动器" class="headerlink" title="应用启动器"></a>应用启动器</h2><p>我是一个好青年，<a href="https://www.alfredapp.com/" target="_blank" rel="external">Alfred</a> 是一款好软件。按照寻常的使用习惯，想要打开一个应用，首先你要在 Dock 栏或者在 LaunchPad 中找到对应的图标，然后用鼠标单击它。到了 Alfred 这里，你只需在呼出的文本框中输入应用的开头几个字母进行模糊搜索然后回车即可。</p>
+<p><img src="https://www.alfredapp.com/media/pages/home/search@2x.jpg" alt="图片来源：https://www.alfredapp.com/"></p>
+<p>当然，单纯把 Alfred 作为应用启动器未免有点大材小用了。除了快速打开应用，它能做的其实更多：浏览目录、执行系统命令、增强系统剪切板等等。再配合上自定义 Workflow 的功能，你能把它玩出花儿来。</p>
+<p>类似的启动器还有 <a href="http://www.obdev.at/products/launchbar/index.html" target="_blank" rel="external">LaunchBar</a> 和 <a href="http://qsapp.com/" target="_blank" rel="external">QuickSilver</a>。它们所提供的功能大同小异，选择使用哪一款则是关乎个人喜好的事情了。</p>
+<h2 id="窗口管理器"><a href="#窗口管理器" class="headerlink" title="窗口管理器"></a>窗口管理器</h2><p>OS X El Capitan 引入了一个叫做 Split View 的新特性，你可以把两个窗口分左右两栏平铺显示在屏幕上，不过触发操作十分复杂，复杂到令人发指。今天我们要推荐的这款窗口管理器叫做 <a href="https://www.spectacleapp.com/" target="_blank" rel="external">Spectacle</a>。</p>
+<p>这个应用可以帮助你仅通过键盘快捷键就能够完成诸如设定窗口位置、切换窗口布局以及调整窗口尺寸等任务。特别是在多显示器与多任务环境下，它能显著提供你的工作效率。你会喜欢上它的。</p>
+<p>Mac 下的窗口管理器可谓不少，推荐 Spectacle 的原因是它的功能已经够用，而且它是开源的。如果你不满足于 Spectacle 所提供的功能，可以尝一尝其他的美味：<a href="http://www.slant.co/topics/526/~window-manager-for-mac" target="_blank" rel="external">What is the best window manager for Mac?</a></p>
+<h2 id="文件检索与操作"><a href="#文件检索与操作" class="headerlink" title="文件检索与操作"></a>文件检索与操作</h2><p>在文件检索方面，Apple 自家的 <a href="https://support.apple.com/kb/PH18828?locale=en_US" target="_blank" rel="external">Spotlight</a> 可以说未遇敌手。</p>
+<p><img src="https://i.imgur.com/c3hfQou.png" alt="使用 Spotlight 检索文件"></p>
+<p>它究竟有多强大，从下面所列的几个示例用法即可管窥一斑：</p>
+<ul>
+<li>直接通过关键字进行查询</li>
+<li>仅使用文件名检索：<code>name:my_file</code></li>
+<li>通过文件作者检索：<code>author:song4</code></li>
+<li>通过日期检索：<ul>
+<li>昨天创建的文件：<code>created:yesterday</code></li>
+<li>创建日期早于2016年1月1日的文件：<code>created:&lt;01/01/2016</code></li>
+<li>修改日期在2016年1月1日和2016年2月15日之间的文件： <code>modified:01/01/2016-15/02/2016</code></li>
+</ul>
+</li>
+<li>通过文件类型检索：<code>kind:jpeg</code></li>
+<li>通过标签检索：<code>label:work</code></li>
+<li>更厉害的是，你还能对以上的条件通过 <code>AND/OR/NOT</code> 进行逻辑连接</li>
+</ul>
+<p>在文件操作方面，又该 Alfred 出场了。</p>
+<p><img src="https://i.imgur.com/30fbi9g.png" alt="使用 Alfred 操作文件"></p>
+<p>比如说你想拷贝或者移动文件、批量裁剪图片大小、添加多个文件到 Email 附件，把这些任务全部扔给 Alfred 就可以了。不用谢它，这是它分内的工作。</p>
+<h2 id="Shortcat"><a href="#Shortcat" class="headerlink" title="Shortcat"></a>Shortcat</h2><p><a href="https://shortcatapp.com/" target="_blank" rel="external">Shortcat</a> 的目标是，凡是屏幕上所有可以点击的区域，都可以由键盘来完成点击操作。本文的题图就是这家伙的图标，它的图标是不是传达出了一丝造反的意味呢？</p>
+<p><img src="https://files.shortcatapp.com/shortcat-screencast-network.gif" alt="图片来源：https://shortcatapp.com/"></p>
+<p>有人不喜欢 Shortcat，觉得它把简单的事情搞复杂了。我只能说大家见仁见智吧。毕竟，我自己已经离不开它了。</p>
+<h2 id="给浏览器装上一副翅膀"><a href="#给浏览器装上一副翅膀" class="headerlink" title="给浏览器装上一副翅膀"></a>给浏览器装上一副翅膀</h2><p>工作中，我使用 Google Chrome 作为主浏览器，使用 Vim 作为主编辑器。</p>
+<p>有人做了一个浏览器增强工具，叫做 <a href="https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb" target="_blank" rel="external">Vimium</a>（Vim + Chromium，Google Chrome 是基于 Chromium 项目构建的）。</p>
+<p>发现它的那一刻，我流下了幸福的眼泪。</p>
+<p>它能做什么呢？用一句话来说就是让你可以通过键盘来操纵浏览器。我自己常用的有下面几个功能：</p>
+<ul>
+<li>页面上下滚动</li>
+<li>快速打开页面上任意一个链接地址</li>
+<li>快速复制页面上任意一个链接地址</li>
+<li>显示当前打开的所有标签页，并快速切换</li>
+</ul>
+<p>这些快捷功能，再加上 Google Chrome 自身提供的一系列快捷键，让我的双手大部分时间都不用离开键盘。</p>
+<p>如果你用 Firefox 的话，类似的扩展叫做 <a href="https://addons.mozilla.org/en-US/firefox/addon/vimperator/" target="_blank" rel="external">Vimperator</a>；如果你用 Safari 的话，类似的扩展叫做 <a href="https://github.com/guyht/vimari" target="_blank" rel="external">Vimari</a>；如果你用 IE 的话，呃…</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;对我这种懒到极致的人来说，鼠标有时候是一个拖慢效率的东西。想想看，我要打开一个应用、调整一个窗口的位置、移动一个文件、浏览一个网页，这些操作似乎都离不开鼠标。如果双手能够始终停留在键盘上，那该有多好。其实，仅用键盘就能完成的任务，比你想象中的要多得多。&lt;/p&gt;
+&lt;p&gt;经过一段时间的苦练，我终于可以把键盘耍得风生水起了。我把我们的美术总监拉到身边演示给他看，试图亮瞎他的眼睛。看过之后，他的表情是茫然的，眼神是鄙视的。虽然他什么也没说，但我知道他的内心独白是这样的：我不说话，我就静静地看着你装逼。&lt;/p&gt;
+&lt;p&gt;看来，美工狗和程序狗之间相互鄙视的现状，势必要持续存在下去了。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="mac" scheme="https://yuankun.me/tags/mac/"/>
+    
+  </entry>
+  
 </feed>
