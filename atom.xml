@@ -703,4 +703,66 @@
     
   </entry>
   
+  <entry>
+    <title>一起来说 Vim 语</title>
+    <link href="https://yuankun.me/2015/11/18/lets-speak-the-vim-language/"/>
+    <id>https://yuankun.me/2015/11/18/lets-speak-the-vim-language/</id>
+    <published>2015-11-17T17:04:49.000Z</published>
+    <updated>2017-08-13T12:46:34.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>作为一款古老而具有持久生命力的编辑器，Vim 自有它的强大之处。很多人觉得 Vim 的学习曲线太陡峭了，为了能够把 Vim 用得风生水起，不得不记忆大量的命令。如果你是 Vim 新手，刚入门就开始面对着浩如烟海的命令逐条学习，我相信你一定会逐渐失去对它的兴趣。其实，Vim 以一种近乎自然语言的方式帮助你完成文本的编辑工作。只需要熟悉几条简单的语法，你就会坐在旋转座椅上前后打转，感慨美妙的生活又回来了。</p>
+<p>我们假设你已经了解了 Vim 的几种常用的工作模式（正常模式、插入模式、命令模式等），如果你还不了解，请先阅读 <a href="http://vimdoc.sourceforge.net/htmldoc/intro.html#vim-modes-intro" target="_blank" rel="external">这里</a>。现在就让我们一起来学习一下 Vim 语吧。</p>
+<a id="more"></a>
+<h2 id="动词"><a href="#动词" class="headerlink" title="动词"></a>动词</h2><p>动词代表了我们打算对文本进行什么样的操作。例如：</p>
+<ul>
+<li><code>d</code> 表示删除（delete）</li>
+<li><code>r</code> 表示替换（replace）</li>
+<li><code>c</code> 表示修改（change）</li>
+<li><code>y</code> 表示复制（yank）</li>
+<li><code>v</code> 表示选取（visual select）</li>
+</ul>
+<h2 id="名词"><a href="#名词" class="headerlink" title="名词"></a>名词</h2><p>名词代表了我们即将处理的文本。Vim 中有一个专门的术语叫做文本对象（<a href="http://vimdoc.sourceforge.net/htmldoc/motion.html#object-select" target="_blank" rel="external">text object</a>），下面是一些文本对象的示例：</p>
+<ul>
+<li><code>w</code> 表示一个单词（word）</li>
+<li><code>s</code> 表示一个句子（sentence）</li>
+<li><code>p</code> 表示一个段落（paragraph）</li>
+<li><code>t</code> 表示一个 HTML 标签（tag）</li>
+<li>引号或者各种括号所包含的文本称作一个文本块。</li>
+</ul>
+<h2 id="介词"><a href="#介词" class="headerlink" title="介词"></a>介词</h2><p>介词界定了待编辑文本的范围或者位置。例如：</p>
+<ul>
+<li><code>i</code> 表示“在…之内”（inside）</li>
+<li><code>a</code> 表示“环绕…”（around）</li>
+<li><code>t</code> 表示“到…位置前”（to）</li>
+<li><code>f</code> 表示“到…位置上”（forward）</li>
+</ul>
+<p>下面是几个有关范围的示意图，你们感受一下：</p>
+<p><img src="https://i.imgur.com/FoUKKrU.png" alt="Prepositions"></p>
+<h2 id="组词为句"><a href="#组词为句" class="headerlink" title="组词为句"></a>组词为句</h2><p>有了这些基本的语言元素，我们就可以着手构造一些简单的命令了。文本编辑命令的基本语法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">动词 介词 名词</div></pre></td></tr></table></figure>
+<p>下面是一些例子（如果熟悉了上面的概念，你将会看到这些例子非常容易理解），请亲自在 Vim 中试验一番。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"># 删除一个段落: delete inside paragraph</div><div class="line">dip</div><div class="line"></div><div class="line"># 选取一个句子: visual select inside sentence</div><div class="line">vis</div><div class="line"></div><div class="line"># 修改一个单词: change inside word</div><div class="line">ciw</div><div class="line"></div><div class="line"># 修改一个单词: change around word</div><div class="line">caw</div><div class="line"></div><div class="line"># 删除文本直到字符“x”（不包括字符“x”）: delete to x</div><div class="line">dtx</div><div class="line"></div><div class="line"># 删除文本直到字符“x”（包括字符“x”）: delete forward x</div><div class="line">dfx</div></pre></td></tr></table></figure>
+<h2 id="数词"><a href="#数词" class="headerlink" title="数词"></a>数词</h2><p>数词指定了待编辑文本对象的数量，从这个角度而言，数词也可以看作是一种介词。引入数词之后，文本编辑命令的语法就升级成了下面这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">动词 介词/数词 名词</div></pre></td></tr></table></figure>
+<p>下面是几个例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># 修改三个单词：change three words</div><div class="line">c3w</div><div class="line"></div><div class="line"># 删除两个单词：delete two words</div><div class="line">d2w</div></pre></td></tr></table></figure>
+<p>另外，数词也可以修饰动词，表示将操作执行 n 次。于是，我们又有了下面的语法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">数词 动词 名词</div></pre></td></tr></table></figure>
+<p>请看示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"># 两次删除单词（等价于删除两个单词）: twice delete word</div><div class="line">2dw</div><div class="line"></div><div class="line"># 三次删除字符（等价于删除三个字符）：three times delete character</div><div class="line">3x</div></pre></td></tr></table></figure>
+<p>怎么样，是不是很容易理解？</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;作为一款古老而具有持久生命力的编辑器，Vim 自有它的强大之处。很多人觉得 Vim 的学习曲线太陡峭了，为了能够把 Vim 用得风生水起，不得不记忆大量的命令。如果你是 Vim 新手，刚入门就开始面对着浩如烟海的命令逐条学习，我相信你一定会逐渐失去对它的兴趣。其实，Vim 以一种近乎自然语言的方式帮助你完成文本的编辑工作。只需要熟悉几条简单的语法，你就会坐在旋转座椅上前后打转，感慨美妙的生活又回来了。&lt;/p&gt;
+&lt;p&gt;我们假设你已经了解了 Vim 的几种常用的工作模式（正常模式、插入模式、命令模式等），如果你还不了解，请先阅读 &lt;a href=&quot;http://vimdoc.sourceforge.net/htmldoc/intro.html#vim-modes-intro&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;这里&lt;/a&gt;。现在就让我们一起来学习一下 Vim 语吧。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="vim" scheme="https://yuankun.me/tags/vim/"/>
+    
+  </entry>
+  
 </feed>
