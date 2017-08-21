@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://yuankun.me/"/>
-  <updated>2017-08-13T08:26:16.000Z</updated>
+  <updated>2017-08-21T03:26:39.000Z</updated>
   <id>https://yuankun.me/</id>
   
   <author>
@@ -14,6 +14,42 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>检视进程的环境变量</title>
+    <link href="https://yuankun.me/2017/08/21/list-running-process-environment-variables/"/>
+    <id>https://yuankun.me/2017/08/21/list-running-process-environment-variables/</id>
+    <published>2017-08-21T02:12:46.000Z</published>
+    <updated>2017-08-21T03:26:39.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>使用 <code>env</code> 命令可以查看系统当前的环境变量。有时候我们希望能够查看一个处在运行状态的进程的环境变量。</p>
+<p>在 Linux 系统下面，进程的环境变量信息可以通过 <code>/proc/&lt;pid&gt;/environ</code> 文件查看：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> cat /proc/&lt;pid&gt;/environ</div></pre></td></tr></table></figure>
+<p>该命令的输出格式不太容易读，所有的信息挤在了同一行。使用 <code>tr</code> 命令将空字符替换为换行符，将会使所有的环境变量按行显示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> cat /proc/&lt;pid&gt;/environ | tr \\0 \\n</div></pre></td></tr></table></figure>
+<p>在 Mac OSX 系统下面，可以使用下面的命令，其中的 <code>-E</code> 选项表示打印进程的环境变量：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> ps -p &lt;pid&gt; -wwwE</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>不过上面提到的方法并没有覆盖到所有的情况。进程的环境变量来自于两部分：进程初始化时由加载器载入的环境变量（来自于系统、父进程或者 <code>exec</code> 系统调用的参数）；和进程执行过程中由 <code>setenv</code> 函数动态设置或修改的环境变量。前面的命令仅会显示第一部分的环境变量。</p>
+<p>进程的环境变量保存在全局变量 <code>char **__environ</code> 中。要想显示由进程动态修改的环境变量，首先必须有这个进程的符号表，然后通过 <code>ptrace</code> 系统调用（比如使用 gdb）来查看。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;使用 &lt;code&gt;env&lt;/code&gt; 命令可以查看系统当前的环境变量。有时候我们希望能够查看一个处在运行状态的进程的环境变量。&lt;/p&gt;
+&lt;p&gt;在 Linux 系统下面，进程的环境变量信息可以通过 &lt;code&gt;/proc/&amp;lt;pid&amp;gt;/environ&lt;/code&gt; 文件查看：&lt;/p&gt;
+&lt;figure class=&quot;highlight shell&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;$&lt;/span&gt; cat /proc/&amp;lt;pid&amp;gt;/environ&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;该命令的输出格式不太容易读，所有的信息挤在了同一行。使用 &lt;code&gt;tr&lt;/code&gt; 命令将空字符替换为换行符，将会使所有的环境变量按行显示：&lt;/p&gt;
+&lt;figure class=&quot;highlight shell&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;$&lt;/span&gt; cat /proc/&amp;lt;pid&amp;gt;/environ | tr \\0 \\n&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在 Mac OSX 系统下面，可以使用下面的命令，其中的 &lt;code&gt;-E&lt;/code&gt; 选项表示打印进程的环境变量：&lt;/p&gt;
+&lt;figure class=&quot;highlight shell&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;$&lt;/span&gt; ps -p &amp;lt;pid&amp;gt; -wwwE&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+    
+      <category term="devops" scheme="https://yuankun.me/tags/devops/"/>
+    
+  </entry>
   
   <entry>
     <title>认识时序数据库</title>

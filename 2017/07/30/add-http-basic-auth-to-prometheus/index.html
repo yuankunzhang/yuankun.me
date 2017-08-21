@@ -9,7 +9,7 @@
 <p>最后一步是修改 <code>prometheus.yml</code> 文件，将我们的 Node Exporter 服务添加进去：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="attr">- job_name:</span> <span class="string">'node-exporter'</span></div><div class="line"><span class="attr">  static_configs:</span></div><div class="line"><span class="attr">    - targets:</span> <span class="string">['your-ip:19090']</span></div><div class="line"><span class="attr">  basic_auth:</span></div><div class="line"><span class="attr">    username:</span> <span class="string">yuankun</span></div><div class="line"><span class="attr">    password:</span> <span class="string">your-password</span></div></pre></td></tr></table></figure>
 <p>重启 Prometheus 服务，就大功告成了。</p>
-</div></article></div></main><footer><div class="paginator"><a href="/2017/08/06/enable-https-with-lets-encrypt/" class="prev">PREV</a><a href="/2017/05/03/plan-storage-space-for-prometheus/" class="next">NEXT</a></div><div id="gitalk-thread"></div><script>(function() {
+</div></article></div></main><footer><div class="paginator"><a href="/2017/08/06/enable-https-with-lets-encrypt/" class="prev">上一篇</a><a href="/2017/05/03/plan-storage-space-for-prometheus/" class="next">下一篇</a></div><div id="gitalk-thread"></div><script>(function() {
     const gitalk = new Gitalk({
       clientID: 'a760e92ebc3d8e136b6a',
       clientSecret: 'de7034a67b0cddc295cbb9005214d7973d06d173',

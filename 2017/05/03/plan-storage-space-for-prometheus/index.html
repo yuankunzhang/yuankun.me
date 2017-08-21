@@ -174,7 +174,7 @@
 <p>进行内存用量规划时，我们主要关注留存于内存中的活跃样本与位于持久化队列中的过期样本。索引数据所需的内存较少，一个经验公式为，每一千个时间序列大约需要 1M 内存。</p>
 <p>Prometheus 对硬盘的使用主要集中在对样本数据的持久化上。当文件过大时，Prometheus 会对文件执行收缩操作。收缩操作的触发由文件的收缩比控制，该选项的默认值为 $10\%$。</p>
 <p>请注意，数据对内存和硬盘的使用情况由众多因素共同影响，例如，数据本身的性质，内存性能，硬盘性能，垃圾回收机制，内存碎片等。对存储用量作出准确的预估是困难的。本文给出的公式在评估数据量级时有参考意义，对于实际的调优工作，还需要对线上环境进行深入而详尽的观察和测量之后方可完成。</p>
-</div></article></div></main><footer><div class="paginator"><a href="/2017/07/30/add-http-basic-auth-to-prometheus/" class="prev">PREV</a><a href="/2017/02/03/trap-in-euclids-proof-of-primes/" class="next">NEXT</a></div><div id="gitalk-thread"></div><script>(function() {
+</div></article></div></main><footer><div class="paginator"><a href="/2017/07/30/add-http-basic-auth-to-prometheus/" class="prev">上一篇</a><a href="/2017/02/03/trap-in-euclids-proof-of-primes/" class="next">下一篇</a></div><div id="gitalk-thread"></div><script>(function() {
     const gitalk = new Gitalk({
       clientID: 'a760e92ebc3d8e136b6a',
       clientSecret: 'de7034a67b0cddc295cbb9005214d7973d06d173',
