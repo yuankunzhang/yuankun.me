@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://yuankun.me/"/>
-  <updated>2017-08-21T03:26:39.000Z</updated>
+  <updated>2017-09-22T04:34:07.000Z</updated>
   <id>https://yuankun.me/</id>
   
   <author>
@@ -14,6 +14,32 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>别忘了定期执行 brew cleanup 哦</title>
+    <link href="https://yuankun.me/2017/09/22/brew-cleanup/"/>
+    <id>https://yuankun.me/2017/09/22/brew-cleanup/</id>
+    <published>2017-09-22T04:09:44.000Z</published>
+    <updated>2017-09-22T04:34:07.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>使用 Homebrew 进行包管理的朋友们注意了，Homebrew 不会自动移除旧版本的软件包，你需要手动执行 <code>brew cleanup</code> 命令才可以。</p>
+<p>如果你从来没调用过这个命令，那么它帮你释放出来的磁盘空间可能会吓到你。可以看看 Stackoverflow 上的<a href="https://superuser.com/questions/975701/how-can-i-remove-outdated-installed-versions-of-homebrew-packages" target="_blank" rel="external">这个回答</a>，大家在调用这个命令之后纷纷表示惊呆了，有个人甚至释放掉了 17.2GB 的磙盘占用。</p>
+<p>另外，如果嫌麻烦的话，可以按下面的方式添加命令别名。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">alias brewski='brew update &amp;&amp; brew upgrade &amp;&amp; brew cleanup; brew doctor'</div><div class="line"></div><div class="line"><span class="meta">#</span> 针对 Fish Shell 的命令：</div><div class="line">abbr -a brewski 'brew update; and brew upgrade; and brew cleanup; and brew doctor'</div></pre></td></tr></table></figure>
+<a id="more"></a>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;使用 Homebrew 进行包管理的朋友们注意了，Homebrew 不会自动移除旧版本的软件包，你需要手动执行 &lt;code&gt;brew cleanup&lt;/code&gt; 命令才可以。&lt;/p&gt;
+&lt;p&gt;如果你从来没调用过这个命令，那么它帮你释放出来的磁盘空间可能会吓到你。可以看看 Stackoverflow 上的&lt;a href=&quot;https://superuser.com/questions/975701/how-can-i-remove-outdated-installed-versions-of-homebrew-packages&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;这个回答&lt;/a&gt;，大家在调用这个命令之后纷纷表示惊呆了，有个人甚至释放掉了 17.2GB 的磙盘占用。&lt;/p&gt;
+&lt;p&gt;另外，如果嫌麻烦的话，可以按下面的方式添加命令别名。&lt;/p&gt;
+&lt;figure class=&quot;highlight shell&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;alias brewski=&#39;brew update &amp;amp;&amp;amp; brew upgrade &amp;amp;&amp;amp; brew cleanup; brew doctor&#39;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;#&lt;/span&gt; 针对 Fish Shell 的命令：&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;abbr -a brewski &#39;brew update; and brew upgrade; and brew cleanup; and brew doctor&#39;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>检视进程的环境变量</title>
