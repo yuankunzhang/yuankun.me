@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 随手记一下折腾 Gentoo 遇到的两个问题 · Yuankun's Blog</title><meta name="description" content="随手记一下折腾 Gentoo 遇到的两个问题 - Yuankun Zhang"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"><link rel="search" type="application/opensearchdescription+xml" href="https://yuankun.me/atom.xml" title="Yuankun's Blog"><script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="https://github.com/yuankunzhang" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">随手记一下折腾 Gentoo 遇到的两个问题</h1><div class="post-info">Sep 28, 2017</div><div class="post-content"><p>随手记一下今天折腾 Gentoo 遇到的两个问题。</p>
+<h2 id="Couldn’t-mount-as-ext3-due-to-feature-incompatibilities"><a href="#Couldn’t-mount-as-ext3-due-to-feature-incompatibilities" class="headerlink" title="Couldn’t mount as ext3 due to feature incompatibilities"></a>Couldn’t mount as ext3 due to feature incompatibilities</h2><p>系统启动完成后，在 dmesg 中看到一条报错信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">EXT4-fs (sda4): couldn&apos;t mount as ext3 due to feature incompatibilities</div></pre></td></tr></table></figure>
+<p>虽然系统最终成功启动，root 分区（ext4）也成功挂载，但这条红色的报错信息有些刺眼。</p>
+<p>从网上找到了这样一篇文章：<a href="https://kuttler.eu/en/post/filesystem-with-huge-files-cannot-be-mounted-read-write-without-config_lbdaf/?c=300806" target="_blank" rel="external">Filesystem with huge files cannot be mounted read-write without CONFIG_LBDAF</a> 。原来开启了 <code>huge_file</code> 属性的文件系统无法被内核正常挂载，而 makefs.ext4 实用工具会自动为文件系统打开这个属性。</p>
+<a id="more"></a>
+<p>解决办法有两个。第一个是使用下面的命令关闭该属性：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> tune2fs -O ^huge_file /dev/sda4 fsck /dev/sda4</div></pre></td></tr></table></figure>
+<p>第二个是修改内核启动的命令行参数，强制指定内核以 ext4 格式挂载文件系统。将下面的内容添加到 <code>/etc/default/grub</code> 文件中：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">GRUB_CMDLINE_LINUX_DEFAULT="rootfstype=ext4"</div></pre></td></tr></table></figure>
+<p>更新 Grub：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> grub-mkconfig -o /boot/grub/grub.cfg</div></pre></td></tr></table></figure>
+<h2 id="Hibernation-image-not-present-or-could-not-be-loaded"><a href="#Hibernation-image-not-present-or-could-not-be-loaded" class="headerlink" title="Hibernation image not present or could not be loaded"></a>Hibernation image not present or could not be loaded</h2><p>这个错误也是从 dmesg 中报出来的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">PM: Hibernation image not present or could not be loaded</div></pre></td></tr></table></figure>
+<p>Hibernation 是电源管理模块中的一个特性，可以显著地降低设备的能耗。Hibernation特性需要交换分区的参与，那么这个错误的产生是和电源管理模块找不到交换分区有关吗？</p>
+<p>在 Superuser 上发现有人遇到过 <a href="https://superuser.com/questions/832498/pm-hibernation-image-not-present-or-could-not-be-loaded" target="_blank" rel="external">相同的问题</a>。解决办法是将交换分区的 UUID 添加到内核启动的命令行参数中。</p>
+<p>首先，使用下面的命令找到交换分区的 UUID（可能需要 root 权限）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> blkid | grep sda3</div><div class="line">/dev/sda3: UUID="edbc48e5-8a64-42cb-84a0-631196cc7aaa" TYPE="swap"</div></pre></td></tr></table></figure>
+<p>接着像第一个问题中描述的那样修改 <code>/etc/default/grub</code> 文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">GRUB_CMDLINE_LINUX_DEFAULT="... resume=/dev/disk/by-uuid/edbc48e5-8a64-42cb-84a0-631196cc7aaa"</div></pre></td></tr></table></figure>
+<p>然后更新 Grub。系统重新启动之后，这两个报错就不见了。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2017/09/22/brew-cleanup/" class="next">下一篇</a></div><div id="gitalk-thread"></div><script>(function() {
+    const gitalk = new Gitalk({
+      clientID: 'a760e92ebc3d8e136b6a',
+      clientSecret: 'de7034a67b0cddc295cbb9005214d7973d06d173',
+      repo: 'yuankun.me',
+      owner: 'yuankunzhang',
+      admin: ['yuankunzhang'],
+      // facebook-like distraction free mode
+      distractionFreeMode: false
+    })
+    gitalk.render('gitalk-thread')
+})();</script><div class="copyright"><p>© 2017 <a href="https://yuankun.me">Yuankun Zhang</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]} });</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-104475777-1",'auto');ga('send','pageview');</script></body></html>
