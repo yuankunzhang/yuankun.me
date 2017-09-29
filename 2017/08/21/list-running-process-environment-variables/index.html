@@ -8,7 +8,7 @@
 <a id="more"></a>
 <p>不过上面提到的方法并没有覆盖到所有的情况。进程的环境变量来自于两部分：进程初始化时由加载器载入的环境变量（来自于系统、父进程或者 <code>exec</code> 系统调用的参数）；和进程执行过程中由 <code>setenv</code> 函数动态设置或修改的环境变量。前面的命令仅会显示第一部分的环境变量。</p>
 <p>进程的环境变量保存在全局变量 <code>char **__environ</code> 中。要想显示由进程动态修改的环境变量，首先必须有这个进程的符号表，然后通过 <code>ptrace</code> 系统调用（比如使用 gdb）来查看。</p>
-</div></article></div></main><footer><div class="paginator"><a href="/2017/09/22/brew-cleanup/" class="prev">上一篇</a><a href="/2017/08/11/introduction-to-tsdb/" class="next">下一篇</a></div><div id="gitalk-thread"></div><script>(function() {
+</div></article></div></main><footer><div class="paginator"><a href="/2017/09/22/brew-cleanup/" class="prev">PREV</a><a href="/2017/08/11/introduction-to-tsdb/" class="next">NEXT</a></div><div id="gitalk-thread"></div><script>(function() {
     const gitalk = new Gitalk({
       clientID: 'a760e92ebc3d8e136b6a',
       clientSecret: 'de7034a67b0cddc295cbb9005214d7973d06d173',

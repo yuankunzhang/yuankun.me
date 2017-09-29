@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://yuankun.me/"/>
-  <updated>2017-09-28T15:04:06.665Z</updated>
+  <updated>2017-09-29T14:45:25.904Z</updated>
   <id>https://yuankun.me/</id>
   
   <author>
@@ -14,6 +14,51 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>在 Gentoo 中解决 perf “找不到符号”的问题</title>
+    <link href="https://yuankun.me/2017/09/29/fix-perf-no-symbols-error-in-gentoo/"/>
+    <id>https://yuankun.me/2017/09/29/fix-perf-no-symbols-error-in-gentoo/</id>
+    <published>2017-09-29T14:13:15.000Z</published>
+    <updated>2017-09-29T14:45:25.904Z</updated>
+    
+    <content type="html"><![CDATA[<p>使用 perf 进行性能分析时，一个令人头疼的问题是，有时候找不到某些库的符号。例如，当我在 Gentoo 下面运行 <code>perf script</code> 时，系统报了下面的错误：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> perf script &gt; out.perf</div><div class="line">no symbols found in /bin/gzip, maybe install a debug package?</div><div class="line">no symbols found in /usr/bin/sandbox, maybe install a debug package?</div><div class="line">no symbols found in /usr/x86_64-pc-linux-gnu/gcc-bin/5.4.0/x86_64-pc-linux-gnu-gcc, maybe install a debug package?</div></pre></td></tr></table></figure>
+<p>这个时候，就需要我们安装相关库的 debug 版本。幸运的是，Gentoo 提供了相当简洁的解决办法，只需要对 <code>/etc/make.conf</code> 文件稍作修改即可：</p>
+<ul>
+<li>在 <code>CFLAGS</code> 变量的值中添加 <code>-ggdb</code> 选项；</li>
+<li>新加一行：<code>FEATURES=&quot;splitdebug&quot;</code> 。</li>
+</ul>
+<a id="more"></a>
+<p>然后重新安装 glibc 以及报错信息中提示的库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> emerge -1 glibc</div><div class="line"><span class="meta">$</span> emerge -1 gzip</div><div class="line"><span class="meta">$</span> emerge -1 sandbox</div><div class="line"><span class="meta">$</span> emerge -1 gcc</div></pre></td></tr></table></figure>
+<p>之后就可以重新运行 <code>perf script</code> 了。</p>
+<p>程序的符号信息被保存在了目录 <code>/usr/lib/debug</code> 下面，因此不会影响到程序的运行性能（但增加了磁盘占用）。还有另外一种方式是使用 <code>FEATURES=&quot;nostrip&quot;</code>，这种方式将符号信息保留在程序的二进制执行文件中，因而会影响到程序的运行性能。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="http://matija.suklje.name/lazy-mans-guide-to-debugging-in-gentoo" target="_blank" rel="external">Lazy man’s guide to debugging in Gentoo</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;使用 perf 进行性能分析时，一个令人头疼的问题是，有时候找不到某些库的符号。例如，当我在 Gentoo 下面运行 &lt;code&gt;perf script&lt;/code&gt; 时，系统报了下面的错误：&lt;/p&gt;
+&lt;figure class=&quot;highlight shell&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;$&lt;/span&gt; perf script &amp;gt; out.perf&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;no symbols found in /bin/gzip, maybe install a debug package?&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;no symbols found in /usr/bin/sandbox, maybe install a debug package?&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;no symbols found in /usr/x86_64-pc-linux-gnu/gcc-bin/5.4.0/x86_64-pc-linux-gnu-gcc, maybe install a debug package?&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;这个时候，就需要我们安装相关库的 debug 版本。幸运的是，Gentoo 提供了相当简洁的解决办法，只需要对 &lt;code&gt;/etc/make.conf&lt;/code&gt; 文件稍作修改即可：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在 &lt;code&gt;CFLAGS&lt;/code&gt; 变量的值中添加 &lt;code&gt;-ggdb&lt;/code&gt; 选项；&lt;/li&gt;
+&lt;li&gt;新加一行：&lt;code&gt;FEATURES=&amp;quot;splitdebug&amp;quot;&lt;/code&gt; 。&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+    
+      <category term="gentoo" scheme="https://yuankun.me/tags/gentoo/"/>
+    
+      <category term="linux" scheme="https://yuankun.me/tags/linux/"/>
+    
+      <category term="performance" scheme="https://yuankun.me/tags/performance/"/>
+    
+  </entry>
   
   <entry>
     <title>随手记一下折腾 Gentoo 遇到的两个问题</title>

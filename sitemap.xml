@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://yuankun.me/2017/09/29/fix-perf-no-symbols-error-in-gentoo/</loc>
+    
+    <lastmod>2017-09-29T14:45:25.904Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://yuankun.me/2017/09/28/gentoo-issues-work-around/</loc>
     
     <lastmod>2017-09-28T15:04:06.665Z</lastmod>

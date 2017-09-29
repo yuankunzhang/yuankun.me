@@ -1,0 +1,27 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 在 Gentoo 中解决 perf “找不到符号”的问题 · Yuankun's Blog</title><meta name="description" content="在 Gentoo 中解决 perf “找不到符号”的问题 - Yuankun Zhang"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"><link rel="search" type="application/opensearchdescription+xml" href="https://yuankun.me/atom.xml" title="Yuankun's Blog"><script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="https://github.com/yuankunzhang" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">在 Gentoo 中解决 perf “找不到符号”的问题</h1><div class="post-info">Sep 29, 2017</div><div class="post-content"><p>使用 perf 进行性能分析时，一个令人头疼的问题是，有时候找不到某些库的符号。例如，当我在 Gentoo 下面运行 <code>perf script</code> 时，系统报了下面的错误：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> perf script &gt; out.perf</div><div class="line">no symbols found in /bin/gzip, maybe install a debug package?</div><div class="line">no symbols found in /usr/bin/sandbox, maybe install a debug package?</div><div class="line">no symbols found in /usr/x86_64-pc-linux-gnu/gcc-bin/5.4.0/x86_64-pc-linux-gnu-gcc, maybe install a debug package?</div></pre></td></tr></table></figure>
+<p>这个时候，就需要我们安装相关库的 debug 版本。幸运的是，Gentoo 提供了相当简洁的解决办法，只需要对 <code>/etc/make.conf</code> 文件稍作修改即可：</p>
+<ul>
+<li>在 <code>CFLAGS</code> 变量的值中添加 <code>-ggdb</code> 选项；</li>
+<li>新加一行：<code>FEATURES=&quot;splitdebug&quot;</code> 。</li>
+</ul>
+<a id="more"></a>
+<p>然后重新安装 glibc 以及报错信息中提示的库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">$</span> emerge -1 glibc</div><div class="line"><span class="meta">$</span> emerge -1 gzip</div><div class="line"><span class="meta">$</span> emerge -1 sandbox</div><div class="line"><span class="meta">$</span> emerge -1 gcc</div></pre></td></tr></table></figure>
+<p>之后就可以重新运行 <code>perf script</code> 了。</p>
+<p>程序的符号信息被保存在了目录 <code>/usr/lib/debug</code> 下面，因此不会影响到程序的运行性能（但增加了磁盘占用）。还有另外一种方式是使用 <code>FEATURES=&quot;nostrip&quot;</code>，这种方式将符号信息保留在程序的二进制执行文件中，因而会影响到程序的运行性能。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="http://matija.suklje.name/lazy-mans-guide-to-debugging-in-gentoo" target="_blank" rel="external">Lazy man’s guide to debugging in Gentoo</a></li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/2017/09/28/gentoo-issues-work-around/" class="next">NEXT</a></div><div id="gitalk-thread"></div><script>(function() {
+    const gitalk = new Gitalk({
+      clientID: 'a760e92ebc3d8e136b6a',
+      clientSecret: 'de7034a67b0cddc295cbb9005214d7973d06d173',
+      repo: 'yuankun.me',
+      owner: 'yuankunzhang',
+      admin: ['yuankunzhang'],
+      // facebook-like distraction free mode
+      distractionFreeMode: false
+    })
+    gitalk.render('gitalk-thread')
+})();</script><div class="copyright"><p>© 2017 <a href="https://yuankun.me">Yuankun Zhang</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]} });</script><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-104475777-1",'auto');ga('send','pageview');</script></body></html>
